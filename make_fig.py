@@ -254,10 +254,31 @@ def make_date_to_columns(date):
     return str(f"{date.month}/{date.day}/{str(date.year)[2:]}")
 
 def get_fig_map_monde(by_sum_or_day,geo_zone,date_end,traitement,list_filter_geo=[]):
-    range_color = (0, 300000)
-    if by_sum_or_day == 'sum':
+    if traitement == 'brut':
+        range_color = (0, 300000)
+        if by_sum_or_day == 'sum':
+            range_color= (0, 60000000)
+
+    elif traitement == 'population':
+        if geo_zone == 'continent':
+            range_color = (0, 0.001)
+            if by_sum_or_day == 'sum':
+                range_color= (0, 0.06)
+        else:
+            range_color = (0, 0.001)
+            if by_sum_or_day == 'sum':
+                range_color= (0, 0.1)
+            
+    elif traitement == 'density':
+        if geo_zone == 'continent':
+            range_color = (0, 16000)
+            if by_sum_or_day == 'sum':
+                range_color= (0, 2200000)
+        else:
+            range_color = (0, 9500)
+            if by_sum_or_day == 'sum':
+                range_color= (0, 900000)
         
-        range_color= (0, 50000000)
     
     if list_filter_geo:
         list_filter_geo = get_good_list(list_filter_geo)
@@ -311,7 +332,7 @@ def get_fig_map_monde(by_sum_or_day,geo_zone,date_end,traitement,list_filter_geo
         if list_filter_geo:
             df_treat = df_treat[df_treat['continent'].isin(list_filter_geo)]
         df_treat_cont =df_treat.groupby(['continent'],as_index=False).sum()
-        df_treat_cont['density'] = df_treat['population']/df_treat['land area']
+        df_treat_cont['density'] = df_treat_cont['population']/df_treat_cont['land area']
         df_treat_cont.drop('land area',axis =1,inplace=True)
     
         for col in columns_dates:
@@ -323,6 +344,7 @@ def get_fig_map_monde(by_sum_or_day,geo_zone,date_end,traitement,list_filter_geo
             df_treat[col] = [dict_continent[x] for x in df_treat['continent']]
 
         df_treat['density']= df_treat['continent'].apply(lambda x : df_treat_cont[df_treat_cont['continent']==x].reset_index()['density'][0])
+        df_treat['population']= df_treat['continent'].apply(lambda x : df_treat_cont[df_treat_cont['continent']==x].reset_index()['population'][0])
         if traitement == 'brut':
            
             fig = make_map_monde(df_treat,'country',make_date_to_columns(date_end),range=range_color)
