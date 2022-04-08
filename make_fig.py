@@ -42,9 +42,12 @@ def get_list_date():
     columns_dates = df.select_dtypes(include=['int64']).columns
 
     serie_date = pd.to_datetime(df[columns_dates].T.index)
-    serie_date = serie_date.to_series()
- 
-    new_serie = pd.Series( [serie_date[i] if i == 0 else serie_date[-1] if i == 19 else serie_date[int(len(serie_date) - (len(serie_date)/i))] for i in range(20)])
+   
+    serie_date = serie_date.to_series().sort_index().reset_index(drop=True)   
+  
+
+   
+    new_serie = pd.Series( [serie_date[i] for i in range(22,444,20)])
   
     return new_serie
     
@@ -240,44 +243,52 @@ def get_fig_line_plot(by_sum_or_day,geo_zone,date_end,traitement,list_filter_geo
 
         else:
             return None
-def make_map_monde(df,loc,date,range):
-
-    fig = px.choropleth(df, 
-                    locations='country',
-                     locationmode ="country names",
-                    color=date, # lifeExp is a column of gapminder
-                    range_color = range,
-                    color_continuous_scale=px.colors.sequential.OrRd)
+def make_map_monde(df,loc,date,range=[]):
+    if range:
+        fig = px.choropleth(df, 
+                        locations='country',
+                        locationmode ="country names",
+                        color=date, # lifeExp is a column of gapminder
+                        range_color = range,
+                        color_continuous_scale=px.colors.sequential.OrRd)
+    else:
+        fig = px.choropleth(df, 
+                        locations='country',
+                        locationmode ="country names",
+                        color=date, # lifeExp is a column of gapminder
+                        
+                        color_continuous_scale=px.colors.sequential.OrRd)
     return fig
 def make_date_to_columns(date):
 
     return str(f"{date.month}/{date.day}/{str(date.year)[2:]}")
 
 def get_fig_map_monde(by_sum_or_day,geo_zone,date_end,traitement,list_filter_geo=[]):
-    if traitement == 'brut':
-        range_color = (0, 300000)
-        if by_sum_or_day == 'sum':
-            range_color= (0, 60000000)
-
-    elif traitement == 'population':
-        if geo_zone == 'continent':
-            range_color = (0, 0.001)
-            if by_sum_or_day == 'sum':
-                range_color= (0, 0.06)
-        else:
-            range_color = (0, 0.001)
-            if by_sum_or_day == 'sum':
-                range_color= (0, 0.1)
+    range_color = []
+    if by_sum_or_day == 'by_day':
+        if traitement == 'brut':
+            if geo_zone=='continent':
+                range_color = (0, 300000)
+                if by_sum_or_day == 'sum':
+                    range_color= (0, 60000000)
+            else:
+                range_color = (0, 96000)
             
-    elif traitement == 'density':
-        if geo_zone == 'continent':
-            range_color = (0, 16000)
-            if by_sum_or_day == 'sum':
-                range_color= (0, 2200000)
-        else:
-            range_color = (0, 9500)
-            if by_sum_or_day == 'sum':
-                range_color= (0, 900000)
+
+        elif traitement == 'population':
+            if geo_zone == 'continent':
+                range_color = (0, 0.001)
+            
+            else:
+                range_color = (0, 0.001)
+            
+                
+        elif traitement == 'density':
+            if geo_zone == 'continent':
+                range_color = (0, 16000)
+        
+            else:
+                range_color = (0, 9500)
         
     
     if list_filter_geo:

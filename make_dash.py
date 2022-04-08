@@ -115,12 +115,13 @@ app.layout = html.Div([
     Input('Date_select', 'value'),
     Input('Select_pays_or_continent', 'value'))
 def update_gaphes(zone_geo,reference_echelle,Date_select,Select_pays_or_continent):
+
     serie = make_fig.get_list_date()
 
-    fig1=make_fig.get_fig_line_plot('by_day',zone_geo,serie[Date_select+1],reference_echelle,Select_pays_or_continent)
-    fig2=make_fig.get_fig_line_plot('sum',zone_geo,serie[Date_select+1],reference_echelle,Select_pays_or_continent)
-    fig3 = make_fig.get_fig_map_monde('by_day',zone_geo,serie[Date_select+1],reference_echelle,Select_pays_or_continent)
-    fig4 = make_fig.get_fig_map_monde('sum',zone_geo,serie[Date_select+1],reference_echelle,Select_pays_or_continent)
+    fig1=make_fig.get_fig_line_plot('by_day',zone_geo,serie[Date_select],reference_echelle,Select_pays_or_continent)
+    fig2=make_fig.get_fig_line_plot('sum',zone_geo,serie[Date_select],reference_echelle,Select_pays_or_continent)
+    fig3 = make_fig.get_fig_map_monde('by_day',zone_geo,serie[Date_select],reference_echelle,Select_pays_or_continent)
+    fig4 = make_fig.get_fig_map_monde('sum',zone_geo,serie[Date_select],reference_echelle,Select_pays_or_continent)
     return fig1,fig2,fig3,fig4
 
 
