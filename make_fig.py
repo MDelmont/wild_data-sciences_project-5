@@ -103,7 +103,6 @@ def get_good_list(list_filter_geo):
                 'PAPUA NEW GUINEA', 'SAMOA', 'SOLOMON ISLANDS', 'VANUATU']
 
 
-
     }
 
     new_list_geo = []
@@ -241,10 +240,13 @@ def get_fig_line_plot(by_sum_or_day,geo_zone,date_end,traitement,list_filter_geo
 
         else:
             return None
-def make_map_monde(df,loc,date):
+def make_map_monde(df,loc,date,range):
 
-    fig = px.choropleth(df, locations='country', locationmode ="country names",
+    fig = px.choropleth(df, 
+                    locations='country',
+                     locationmode ="country names",
                     color=date, # lifeExp is a column of gapminder
+                    range_color = range,
                     color_continuous_scale=px.colors.sequential.OrRd)
     return fig
 def make_date_to_columns(date):
@@ -252,6 +254,11 @@ def make_date_to_columns(date):
     return str(f"{date.month}/{date.day}/{str(date.year)[2:]}")
 
 def get_fig_map_monde(by_sum_or_day,geo_zone,date_end,traitement,list_filter_geo=[]):
+    range_color = (0, 300000)
+    if by_sum_or_day == 'sum':
+        
+        range_color= (0, 50000000)
+    
     if list_filter_geo:
         list_filter_geo = get_good_list(list_filter_geo)
     df = get_good_df(by_sum_or_day)
@@ -271,7 +278,7 @@ def get_fig_map_monde(by_sum_or_day,geo_zone,date_end,traitement,list_filter_geo
 
         if traitement == 'brut':
             df_brut = df_treat[[ 'continent','country',*columns_dates]]
-            fig = make_map_monde(df_brut,'country',make_date_to_columns(date_end))
+            fig = make_map_monde(df_brut,'country',make_date_to_columns(date_end),range=range_color)
             return fig
         elif traitement == 'population':
             columns_pop = ['population', 'continent','country']
@@ -279,14 +286,14 @@ def get_fig_map_monde(by_sum_or_day,geo_zone,date_end,traitement,list_filter_geo
             df_pop["population"] = df_pop["population"].str.replace(",","")
             df_pop["population"] = df_pop["population"].astype(int)
             make_good_value(df_pop,'population',columns_dates)
-            fig = make_map_monde(df_pop,'country',make_date_to_columns(date_end))
+            fig = make_map_monde(df_pop,'country',make_date_to_columns(date_end),range=range_color)
             return fig
 
         elif traitement == 'density':
             columns_dens = ['density', 'continent','country']
             df_dens = df_treat[[*columns_dens,*columns_dates]]
             make_good_value(df_dens,'density',columns_dates)
-            fig = make_map_monde(df_dens,'country',make_date_to_columns(date_end))
+            fig = make_map_monde(df_dens,'country',make_date_to_columns(date_end),range=range_color)
             return fig
     
         else:
@@ -315,9 +322,10 @@ def get_fig_map_monde(by_sum_or_day,geo_zone,date_end,traitement,list_filter_geo
    
             df_treat[col] = [dict_continent[x] for x in df_treat['continent']]
 
+        df_treat['density']= df_treat['continent'].apply(lambda x : df_treat_cont[df_treat_cont['continent']==x].reset_index()['density'][0])
         if traitement == 'brut':
            
-            fig = make_map_monde(df_treat,'country',make_date_to_columns(date_end))
+            fig = make_map_monde(df_treat,'country',make_date_to_columns(date_end),range=range_color)
             return fig
 
         elif traitement == 'population':
@@ -325,20 +333,18 @@ def get_fig_map_monde(by_sum_or_day,geo_zone,date_end,traitement,list_filter_geo
             columns_pop = ['population', 'continent','country']
             df_pop = df_treat[[*columns_pop,*columns_dates]]
             make_good_value(df_pop,'population',columns_dates)
-            fig = make_map_monde(df_pop,'country',make_date_to_columns(date_end))
+            fig = make_map_monde(df_pop,'country',make_date_to_columns(date_end),range=range_color)
             return fig
 
         elif traitement == 'density':
             columns_dens = ['density', 'continent','country']
             df_dens = df_treat[[*columns_dens,*columns_dates]]
             make_good_value(df_dens,'density',columns_dates)
-            fig = make_map_monde(df_dens,'country',make_date_to_columns(date_end))
+            fig = make_map_monde(df_dens,'country',make_date_to_columns(date_end),range=range_color)
             return fig
-    
         else:
             return None
     else:
-       
         return None
 
 
